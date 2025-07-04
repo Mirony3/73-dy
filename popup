@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Tägliche NFC-Nachricht</title>
+    <script>
+      const messages = {
+        0: "🛋️ Sonntag: Chill, du hast es verdient!",
+        1: "🚀 Montag: Neue Woche, neues Glück!",
+        2: "☕ Dienstag: Zeit für Kaffee und Code.",
+        3: "🐪 Mittwoch: Bergfest – fast geschafft!",
+        4: "🔥 Donnerstag: Fokus – du bist gut drauf!",
+        5: "🎉 Freitag: Du hast dir was gegönnt, oder?",
+        6: "🌞 Samstag: Rausgehen. Oder zocken. Deine Wahl!"
+      };
+      const today = new Date().getDay();
+      alert(messages[today]);
+    </script>
+  </head>
+  <body></body>
+</html>
