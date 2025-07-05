@@ -10,14 +10,12 @@
   <div class="card">
     <div class="date" id="date"></div>
     <div class="message" id="message">
-      <!-- MESSAGE_PLACEHOLDER -->
+   
 Ich hoffe, du hast gerade was zu trinken in der Hand.
-<!-- /MESSAGE_PLACEHOLDER -->
+
     </div>
   </div>
-
   <script>
-    // Nur Datum setzen – kein Fetch mehr!
     const now = new Date(),
           d = String(now.getDate()).padStart(2,'0'),
           m = String(now.getMonth()+1).padStart(2,'0'),
