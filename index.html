@@ -1,44 +1,37 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tägliche Nachricht</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="card">
-    <div class="date" id="date"></div>
-    <div class="message" id="message">
-   
-<!-- MESSAGE_PLACEHOLDER -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // 1) Datum setzen
+  const now = new Date(),
+        d = String(now.getDate()).padStart(2, '0'),
+        m = String(now.getMonth() + 1).padStart(2, '0'),
+        y = now.getFullYear();
+  document.getElementById("date").textContent = `${d}.${m}.${y}`;
 
-<!-- /MESSAGE_PLACEHOLDER -->
+  // 2) Nachrichtstext prüfen
+  const msgEl = document.getElementById("message");
+  const text = msgEl.textContent.trim();
+  const urlMatch = text.match(/https?:\/\/[^\s]+/);
+  if (!urlMatch) return;  // keine URL → nix weiter
 
-    </div>
-  </div>
-  <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    // Datum setzen
-    const now = new Date(),
-          d = String(now.getDate()).padStart(2,'0'),
-          m = String(now.getMonth()+1).padStart(2,'0'),
-          y = now.getFullYear();
-    document.getElementById("date").textContent = `${d}.${m}.${y}`;
+  const url = urlMatch[0];
 
-    // URL checken
-    const text = document.getElementById("message").textContent.trim(),
-          match = text.match(/https?:\/\/[^\s]+/);
-    if (match) {
-      // 1 Sekunde warten, damit man die Karte registriert
-      setTimeout(() => {
-        window.location.href = match[0];
-      }, 1000);
-    }
-  });
+  // 3a) Wenn es ein Bild ist (.jpg, .png, .gif), zeige es inline
+  if (/\.(jpe?g|png|gif)$/i.test(url)) {
+    msgEl.innerHTML = `<img src="${url}" alt="Bild" style="max-width:100%;height:auto;border-radius:8px;">`;
+  }
+  // 3b) Sonst zeige einen Button, um den Link in neuem Tab zu öffnen
+  else {
+    const btn = document.createElement("button");
+    btn.textContent = "▶ Link öffnen";
+    btn.style.marginTop = "1em";
+    btn.style.padding = "0.5em 1em";
+    btn.style.border = "none";
+    btn.style.borderRadius = "4px";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => window.open(url, "_blank");
+    // Die Karte enthält nur Text – hänge den Button darunter
+    msgEl.innerHTML = `<div>${text}</div>`;
+    msgEl.append(btn);
+  }
+});
 </script>
-
-
-
-</body>
-</html>
