@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Tägliche NFC-Nachricht</title>
+    <title>NFC Tag – Tagesnachricht mit Textblöcken</title>
     <script>
       const docUrl = "https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt";
 
@@ -22,25 +22,41 @@
       fetch(docUrl)
         .then(response => response.text())
         .then(text => {
-          const lines = text.split("\n").map(line => line.trim()).filter(line => line.length > 0);
-
-          let todayMessage = null;
+          const lines = text.split("\n");
           const randoms = [];
+          let message = null;
 
-          lines.forEach(line => {
-            if (line.startsWith(todayStr + ":")) {
-              todayMessage = line.split(":").slice(1).join(":").trim();
+          let currentDate = null;
+          let buffer = [];
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            if (line.match(/^\d{2}\.\d{2}\.\d{4}:/)) {
+              // Datum-Zeile gefunden
+              if (currentDate && buffer.length > 0) {
+                if (currentDate === todayStr) {
+                  message = buffer.join("\n").trim();
+                }
+              }
+              currentDate = line.split(":")[0];
+              buffer = [line.split(":").slice(1).join(":").trim()];
             } else if (line.startsWith("RANDOM:")) {
               randoms.push(line.replace("RANDOM:", "").trim());
+            } else if (line !== "") {
+              buffer.push(line);
             }
-          });
+          }
 
-          let message = todayMessage;
+          // Letzten Block prüfen
+          if (currentDate === todayStr && buffer.length > 0 && !message) {
+            message = buffer.join("\n").trim();
+          }
 
+          // Zufall (aber stabil pro Tag)
           if (!message && randoms.length > 0) {
-            // Stabiler Seed: Zeit um 00:00 Uhr
-            const daySeed = new Date(year, now.getMonth(), now.getDate()).getTime() / 86400000; // ein Tag = 86400000ms
-            const index = Math.floor(seededRandom(daySeed) * randoms.length);
+            const seed = new Date(year, now.getMonth(), now.getDate()).getTime() / 86400000;
+            const index = Math.floor(seededRandom(seed) * randoms.length);
             message = randoms[index];
           }
 
@@ -55,7 +71,7 @@
           }
         })
         .catch(() => {
-          alert("⚠️ Konnte keine Nachricht laden.");
+          alert("⚠️ Nachricht konnte nicht geladen werden.");
         });
     </script>
   </head>
