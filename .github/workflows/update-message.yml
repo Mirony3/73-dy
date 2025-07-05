@@ -66,4 +66,4 @@ jobs:
           git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
           git push
           
-Add GitHub Action to update daily message
+
