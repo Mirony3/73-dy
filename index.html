@@ -2,36 +2,34 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>NFC Nachricht (Datum: TT.MM.JJJJ)</title>
+    <title>Tägliche NFC-Nachricht</title>
     <script>
       const docUrl = "https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt";
 
-      // Aktuelles Datum im Format TT.MM.JJJJ erzeugen
+      // Heutiges Datum im Format TT.MM.JJJJ
       const now = new Date();
       const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0'); // Monate: 0–11
+      const month = String(now.getMonth() + 1).padStart(2, '0');
       const year = now.getFullYear();
-      const todayStr = `${day}.${month}.${year}`; // z. B. 04.07.2025
+      const todayStr = `${day}.${month}.${year}`;
 
-      const fallbackMessages = [
-        "💬 Heute ist dein Tag – ganz ohne Plan.",
-        "🎲 Nichts geplant, aber alles möglich.",
-        "🧠 Du bist besser als du denkst.",
-        "🍀 Glück kommt von innen.",
-        "🌈 Du brauchst keinen Grund zum Lächeln."
-      ];
+      // Seedbare Zufallsfunktion basierend auf Tageswert
+      function seededRandom(seed) {
+        let x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      }
 
       fetch(docUrl)
         .then(response => response.text())
         .then(text => {
-          const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+          const lines = text.split("\n").map(line => line.trim()).filter(line => line.length > 0);
 
           let todayMessage = null;
           const randoms = [];
 
           lines.forEach(line => {
             if (line.startsWith(todayStr + ":")) {
-              todayMessage = line.split(":").slice(1).join(":").trim(); // erlaubt Doppelpunkte im Text
+              todayMessage = line.split(":").slice(1).join(":").trim();
             } else if (line.startsWith("RANDOM:")) {
               randoms.push(line.replace("RANDOM:", "").trim());
             }
@@ -40,11 +38,14 @@
           let message = todayMessage;
 
           if (!message && randoms.length > 0) {
-            message = randoms[Math.floor(Math.random() * randoms.length)];
+            // Stabiler Seed: Zeit um 00:00 Uhr
+            const daySeed = new Date(year, now.getMonth(), now.getDate()).getTime() / 86400000; // ein Tag = 86400000ms
+            const index = Math.floor(seededRandom(daySeed) * randoms.length);
+            message = randoms[index];
           }
 
           if (!message) {
-            message = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+            message = "🌀 Heute gibt’s nichts Neues.";
           }
 
           if (message.startsWith("http")) {
@@ -54,8 +55,7 @@
           }
         })
         .catch(() => {
-          const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
-          alert(fallback);
+          alert("⚠️ Konnte keine Nachricht laden.");
         });
     </script>
   </head>
