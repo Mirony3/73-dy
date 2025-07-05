@@ -2,32 +2,60 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Live NFC Nachricht</title>
+    <title>NFC Nachricht (Datum: TT.MM.JJJJ)</title>
     <script>
-      const fallbackMessages = {
-        0: "🛋️ Sonntag: Chill, du hast es verdient!",
-        1: "🚀 Montag: Neue Woche, neues Glück!",
-        2: "☕ Dienstag: Zeit für Kaffee und Code.",
-        3: "🐪 Mittwoch: Bergfest – fast geschafft!",
-        4: "🔥 Donnerstag: Fokus – du bist gut drauf!",
-        5: "🎉 Freitag: Du hast dir was gegönnt, oder?",
-        6: "🌞 Samstag: Rausgehen. Oder zocken. Deine Wahl!"
-      };
+      const docUrl = "https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt";
 
-      const today = new Date().getDay();
+      // Aktuelles Datum im Format TT.MM.JJJJ erzeugen
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // Monate: 0–11
+      const year = now.getFullYear();
+      const todayStr = `${day}.${month}.${year}`; // z. B. 04.07.2025
 
-      fetch("https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt")
+      const fallbackMessages = [
+        "💬 Heute ist dein Tag – ganz ohne Plan.",
+        "🎲 Nichts geplant, aber alles möglich.",
+        "🧠 Du bist besser als du denkst.",
+        "🍀 Glück kommt von innen.",
+        "🌈 Du brauchst keinen Grund zum Lächeln."
+      ];
+
+      fetch(docUrl)
         .then(response => response.text())
         .then(text => {
-          const clean = text.trim();
-          if (clean.length > 0) {
-            alert(clean);
+          const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+
+          let todayMessage = null;
+          const randoms = [];
+
+          lines.forEach(line => {
+            if (line.startsWith(todayStr + ":")) {
+              todayMessage = line.split(":").slice(1).join(":").trim(); // erlaubt Doppelpunkte im Text
+            } else if (line.startsWith("RANDOM:")) {
+              randoms.push(line.replace("RANDOM:", "").trim());
+            }
+          });
+
+          let message = todayMessage;
+
+          if (!message && randoms.length > 0) {
+            message = randoms[Math.floor(Math.random() * randoms.length)];
+          }
+
+          if (!message) {
+            message = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+          }
+
+          if (message.startsWith("http")) {
+            window.location.href = message;
           } else {
-            alert(fallbackMessages[today]);
+            alert(message);
           }
         })
         .catch(() => {
-          alert(fallbackMessages[today]);
+          const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+          alert(fallback);
         });
     </script>
   </head>
