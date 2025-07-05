@@ -1,0 +1,69 @@
+name: Aktualisiere tägliche Nachricht
+
+on:
+  schedule:
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v3
+
+      - name: Python einrichten
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip \
+            google-auth google-api-python-client
+
+      - name: Nachricht holen & HTML aktualisieren
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.GDOC_SVC_ACCOUNT }}
+          DOC_ID: '1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA'
+        run: |
+          cat << 'EOF' > fetch_message.py
+          import json, os, re
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+
+          creds_info = json.loads(os.environ['SERVICE_ACCOUNT_JSON'])
+          creds = service_account.Credentials.from_service_account_info(
+              creds_info,
+              scopes=['https://www.googleapis.com/auth/documents.readonly']
+          )
+          service = build('docs', 'v1', credentials=creds)
+          doc = service.documents().get(documentId=os.environ['DOC_ID']).execute()
+
+          text = ''
+          for el in doc.get('body',{}).get('content',[]):
+              if 'paragraph' in el:
+                  for run in el['paragraph'].get('elements',[]):
+                      t = run.get('textRun',{}).get('content')
+                      if t: text += t
+          message = text.strip().replace('\n','<br>')
+
+          with open('index.html','r',encoding='utf-8') as f: html = f.read()
+          pattern = r'<!-- MESSAGE_PLACEHOLDER -->.*?<!-- /MESSAGE_PLACEHOLDER -->'
+          replacement = f'<!-- MESSAGE_PLACEHOLDER -->\n{message}\n<!-- /MESSAGE_PLACEHOLDER -->'
+          new_html = re.sub(pattern, replacement, html, flags=re.S)
+          with open('index.html','w',encoding='utf-8') as f: f.write(new_html)
+          EOF
+
+          python fetch_message.py
+
+      - name: Änderungen committen & pushen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
+          git push
+          
+Add GitHub Action to update daily message
