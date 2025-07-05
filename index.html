@@ -2,8 +2,8 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tägliche Nachricht</title>
-    <!-- Verknüpfung zur externen CSS-Datei -->
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -39,12 +39,9 @@
 
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-
             if (line.match(/^\d{2}\.\d{2}\.\d{4}:/)) {
-              if (currentDate && buffer.length > 0) {
-                if (currentDate === todayStr) {
-                  message = buffer.join("\n").trim();
-                }
+              if (currentDate && buffer.length > 0 && currentDate === todayStr) {
+                message = buffer.join("\n").trim();
               }
               currentDate = line.split(":")[0];
               buffer = [line.split(":").slice(1).join(":").trim()];
@@ -55,7 +52,7 @@
             }
           }
 
-          if (currentDate === todayStr && buffer.length > 0 && !message) {
+          if (!message && currentDate === todayStr && buffer.length > 0) {
             message = buffer.join("\n").trim();
           }
 
