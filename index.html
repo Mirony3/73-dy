@@ -18,11 +18,29 @@ Vielleicht grad ein Song, der dich überrascht?
     </div>
   </div>
   <script>
-    const now = new Date(),
-          d = String(now.getDate()).padStart(2,'0'),
-          m = String(now.getMonth()+1).padStart(2,'0'),
-          y = now.getFullYear();
-    document.getElementById("date").textContent = `${d}.${m}.${y}`;
-  </script>
+  // 1) Datum setzen
+  const now = new Date(),
+        d = String(now.getDate()).padStart(2,'0'),
+        m = String(now.getMonth()+1).padStart(2,'0'),
+        y = now.getFullYear();
+  document.getElementById("date").textContent = `${d}.${m}.${y}`;
+
+  // 2) Nachricht prüfen und ggf. weiterleiten
+  const msgEl = document.getElementById("message");
+  const text = msgEl.textContent.trim();
+
+  // a) wenn die ganze Nachricht eine URL ist
+  if (/^https?:\/\//.test(text)) {
+    window.location.href = text;
+  }
+  // b) sonst, falls irgendwo im Text eine URL drinsteht
+  else {
+    const m = text.match(/https?:\/\/[^\s<]+/);
+    if (m) {
+      window.location.href = m[0];
+    }
+  }
+</script>
+
 </body>
 </html>
