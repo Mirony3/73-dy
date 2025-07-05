@@ -58,6 +58,9 @@ jobs:
 
           python fetch_message.py
 
+      - name: Temporäre Datei löschen
+        run: rm fetch_message.py
+
       - name: Änderungen committen & pushen
         run: |
           git config user.name "github-actions[bot]"
@@ -65,5 +68,3 @@ jobs:
           git add index.html
           git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
           git push
-          
-
