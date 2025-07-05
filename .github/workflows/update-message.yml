@@ -21,7 +21,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Python einrichten
         uses: actions/setup-python@v4
         with:
@@ -38,10 +37,12 @@ jobs:
           DOC_ID: '1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA'
         run: |
           cat << 'EOF' > fetch_message.py
-          import json, os, re
+          import json, os, re, random
+          from datetime import datetime
           from google.oauth2 import service_account
           from googleapiclient.discovery import build
 
+          # 1) Credentials & Docs API initialisieren
           creds_info = json.loads(os.environ['SERVICE_ACCOUNT_JSON'])
           creds = service_account.Credentials.from_service_account_info(
               creds_info,
@@ -50,19 +51,59 @@ jobs:
           service = build('docs', 'v1', credentials=creds)
           doc = service.documents().get(documentId=os.environ['DOC_ID']).execute()
 
-          text = ''
+          # 2) Rohtext in Zeilen aufteilen
+          lines = []
           for el in doc.get('body',{}).get('content',[]):
               if 'paragraph' in el:
                   for run in el['paragraph'].get('elements',[]):
                       t = run.get('textRun',{}).get('content')
-                      if t: text += t
-          message = text.strip().replace('\n','<br>')
+                      if t:
+                          for sub in t.split('\n'):
+                              if sub.strip():
+                                  lines.append(sub.strip())
 
-          with open('index.html','r',encoding='utf-8') as f: html = f.read()
-          pattern = r'<!-- MESSAGE_PLACEHOLDER -->.*?<!-- /MESSAGE_PLACEHOLDER -->'
-          replacement = f'<!-- MESSAGE_PLACEHOLDER -->\n{message}\n<!-- /MESSAGE_PLACEHOLDER -->'
-          new_html = re.sub(pattern, replacement, html, flags=re.S)
-          with open('index.html','w',encoding='utf-8') as f: f.write(new_html)
+          # 3) Datumseinträge und RANDOM sammeln
+          today_str = datetime.utcnow().strftime('%d.%m.%Y')
+          date_messages = {}
+          randoms = []
+          current_date = None
+          buffer = []
+
+          for line in lines:
+              m = re.match(r'^(\d{2}\.\d{2}\.\d{4}):(.*)$', line)
+              if m:
+                  if current_date and buffer:
+                      date_messages[current_date] = '\n'.join(buffer).strip()
+                  current_date = m.group(1)
+                  buffer = [m.group(2).strip()]
+              elif line.startswith('RANDOM:'):
+                  randoms.append(line.split('RANDOM:')[1].strip())
+              else:
+                  if current_date:
+                      buffer.append(line)
+
+          if current_date and buffer:
+              date_messages[current_date] = '\n'.join(buffer).strip()
+
+          # 4) Auswahl der Nachricht
+          if today_str in date_messages:
+              message = date_messages[today_str]
+          elif randoms:
+              message = random.choice(randoms)
+          else:
+              message = "🌀 Heute gibt’s nichts Neues."
+
+          # 5) HTML updaten
+          message = message.replace('\n','<br>')
+          with open('index.html','r',encoding='utf-8') as f:
+              html = f.read()
+          new_html = re.sub(
+              r'<!-- MESSAGE_PLACEHOLDER -->.*?<!-- /MESSAGE_PLACEHOLDER -->',
+              f'<!-- MESSAGE_PLACEHOLDER -->\n{message}\n<!-- /MESSAGE_PLACEHOLDER -->',
+              html, flags=re.S
+          )
+          with open('index.html','w',encoding='utf-8') as f:
+              f.write(new_html)
           EOF
 
           python fetch_message.py
@@ -75,12 +116,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
-
-          # Wenn index.html geändert wurde, committen und pushen
           if ! git diff --cached --quiet; then
             git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
             git push
           else
             echo "Keine Änderungen an index.html, kein Commit nötig."
           fi
-
