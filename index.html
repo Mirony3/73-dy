@@ -2,18 +2,55 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>NFC Tag – Tagesnachricht mit Textblöcken</title>
+    <title>Tägliche Nachricht</title>
+    <style>
+      body {
+        background: #f7f7f7;
+        font-family: "Segoe UI", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+        margin: 0;
+      }
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 500px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        text-align: left;
+      }
+      .date {
+        font-size: 0.9em;
+        color: #888;
+        margin-bottom: 12px;
+      }
+      .message {
+        white-space: pre-wrap;
+        font-size: 1.1em;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="date" id="date"></div>
+      <div class="message" id="message">Lade Nachricht...</div>
+    </div>
+
     <script>
       const docUrl = "https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt";
 
-      // Heutiges Datum im Format TT.MM.JJJJ
       const now = new Date();
       const day = String(now.getDate()).padStart(2, '0');
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const year = now.getFullYear();
       const todayStr = `${day}.${month}.${year}`;
 
-      // Seedbare Zufallsfunktion basierend auf Tageswert
+      document.getElementById("date").textContent = todayStr;
+
       function seededRandom(seed) {
         let x = Math.sin(seed) * 10000;
         return x - Math.floor(x);
@@ -25,7 +62,6 @@
           const lines = text.split("\n");
           const randoms = [];
           let message = null;
-
           let currentDate = null;
           let buffer = [];
 
@@ -33,7 +69,6 @@
             const line = lines[i].trim();
 
             if (line.match(/^\d{2}\.\d{2}\.\d{4}:/)) {
-              // Datum-Zeile gefunden
               if (currentDate && buffer.length > 0) {
                 if (currentDate === todayStr) {
                   message = buffer.join("\n").trim();
@@ -48,12 +83,10 @@
             }
           }
 
-          // Letzten Block prüfen
           if (currentDate === todayStr && buffer.length > 0 && !message) {
             message = buffer.join("\n").trim();
           }
 
-          // Zufall (aber stabil pro Tag)
           if (!message && randoms.length > 0) {
             const seed = new Date(year, now.getMonth(), now.getDate()).getTime() / 86400000;
             const index = Math.floor(seededRandom(seed) * randoms.length);
@@ -67,13 +100,12 @@
           if (message.startsWith("http")) {
             window.location.href = message;
           } else {
-            alert(message);
+            document.getElementById("message").textContent = message;
           }
         })
         .catch(() => {
-          alert("⚠️ Nachricht konnte nicht geladen werden.");
+          document.getElementById("message").textContent = "⚠️ Nachricht konnte nicht geladen werden.";
         });
     </script>
-  </head>
-  <body></body>
+  </body>
 </html>
