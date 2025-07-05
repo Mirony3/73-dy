@@ -76,7 +76,8 @@ jobs:
                       date_messages[current_date] = '\n'.join(buffer).strip()
                   current_date = m.group(1)
                   buffer = [m.group(2).strip()]
-              elif line.startswith('RANDOM:'):
+              elif line.lstrip().startswith('RANDOM:'): randoms.append(line.split('RANDOM:')[1].strip())
+
                   randoms.append(line.split('RANDOM:')[1].strip())
               else:
                   if current_date:
