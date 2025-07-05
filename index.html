@@ -18,27 +18,26 @@
     </div>
   </div>
   <script>
-  // Warte, bis alles im DOM steht
   window.addEventListener('DOMContentLoaded', () => {
-    // 1) Datum setzen
+    // Datum setzen
     const now = new Date(),
           d = String(now.getDate()).padStart(2,'0'),
           m = String(now.getMonth()+1).padStart(2,'0'),
           y = now.getFullYear();
     document.getElementById("date").textContent = `${d}.${m}.${y}`;
 
-    // 2) Nachrichtstext holen und auf URLs prüfen
-    const msgEl = document.getElementById("message"),
-          text = msgEl.textContent || '',
-          urlRegex = /(https?:\/\/[^\s]+)/g,
-          match = urlRegex.exec(text.trim());
-
+    // URL checken
+    const text = document.getElementById("message").textContent.trim(),
+          match = text.match(/https?:\/\/[^\s]+/);
     if (match) {
-      // direkt zur ersten gefundenen URL weiterleiten
-      window.location.href = match[0];
+      // 1 Sekunde warten, damit man die Karte registriert
+      setTimeout(() => {
+        window.location.href = match[0];
+      }, 1000);
     }
   });
 </script>
+
 
 
 </body>
