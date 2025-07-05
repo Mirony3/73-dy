@@ -35,75 +35,75 @@ jobs:
           DOC_ID: '1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA'
         run: |
           python - << 'EOF'
-            import json, os, re, random
-            from datetime import datetime
-            from google.oauth2 import service_account
-            from googleapiclient.discovery import build
-            
-            # 1) Credentials & Docs API initialisieren
-            creds_info = json.loads(os.environ['SERVICE_ACCOUNT_JSON'])
-            creds = service_account.Credentials.from_service_account_info(
-                creds_info,
-                scopes=['https://www.googleapis.com/auth/documents.readonly']
-            )
-            service = build('docs', 'v1', credentials=creds)
-            doc = service.documents().get(documentId=os.environ['DOC_ID']).execute()
-            
-            # 2) Rohtext in Zeilen aufteilen
-            lines = []
-            for el in doc.get('body', {}).get('content', []):
-                if 'paragraph' in el:
-                    for run in el['paragraph'].get('elements', []):
-                        t = run.get('textRun', {}).get('content')
-                        if t:
-                            for sub in t.split('\n'):
-                                if sub.strip():
-                                    lines.append(sub.strip())
-            
-            # 3) Datumseinträge und RANDOM sammeln
-            today_str = datetime.utcnow().strftime('%d.%m.%Y')
-            date_messages = {}
-            randoms = []
-            current_date = None
-            buffer = []
-            
-            for line in lines:
-                m = re.match(r'^(\d{2}\.\d{2}\.\d{4}):(.*)$', line)
-                if m:
-                    if current_date and buffer:
-                        date_messages[current_date] = '\n'.join(buffer).strip()
-                    current_date = m.group(1)
-                    buffer = [m.group(2).strip()]
-                elif 'RANDOM:' in line:
-                    randoms.append(line.split('RANDOM:', 1)[1].strip())
-                else:
-                    if current_date:
-                        buffer.append(line)
-            
-            if current_date and buffer:
-                date_messages[current_date] = '\n'.join(buffer).strip()
-            
-            # 4) Auswahl der Nachricht
-            if today_str in date_messages:
-                message = date_messages[today_str]
-            elif randoms:
-                message = random.choice(randoms)
-            else:
-                message = "🌀 Heute gibt’s nichts Neues."
-            
-            # 5) HTML updaten
-            message = message.replace('\n', '<br>')
-            import re as _re
-            with open('index.html', 'r', encoding='utf-8') as f:
-                html = f.read()
-            new_html = _re.sub(
-                r'<!-- MESSAGE_PLACEHOLDER -->.*?<!-- /MESSAGE_PLACEHOLDER -->',
-                f'<!-- MESSAGE_PLACEHOLDER -->\n{message}\n<!-- /MESSAGE_PLACEHOLDER -->',
-                html, flags=_re.S
-            )
-            with open('index.html', 'w', encoding='utf-8') as f:
-                f.write(new_html)
-            EOF
+          import json, os, re, random
+          from datetime import datetime
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+
+          # 1) Credentials & Docs API initialisieren
+          creds_info = json.loads(os.environ['SERVICE_ACCOUNT_JSON'])
+          creds = service_account.Credentials.from_service_account_info(
+              creds_info,
+              scopes=['https://www.googleapis.com/auth/documents.readonly']
+          )
+          service = build('docs', 'v1', credentials=creds)
+          doc = service.documents().get(documentId=os.environ['DOC_ID']).execute()
+
+          # 2) Rohtext in Zeilen aufteilen
+          lines = []
+          for el in doc.get('body', {}).get('content', []):
+              if 'paragraph' in el:
+                  for run in el['paragraph'].get('elements', []):
+                      t = run.get('textRun', {}).get('content')
+                      if t:
+                          for sub in t.split('\n'):
+                              if sub.strip():
+                                  lines.append(sub.strip())
+
+          # 3) Datumseinträge und RANDOM sammeln
+          today_str = datetime.utcnow().strftime('%d.%m.%Y')
+          date_messages = {}
+          randoms = []
+          current_date = None
+          buffer = []
+
+          for line in lines:
+              m = re.match(r'^(\d{2}\.\d{2}\.\d{4}):(.*)$', line)
+              if m:
+                  if current_date and buffer:
+                      date_messages[current_date] = '\n'.join(buffer).strip()
+                  current_date = m.group(1)
+                  buffer = [m.group(2).strip()]
+              elif 'RANDOM:' in line:
+                  randoms.append(line.split('RANDOM:', 1)[1].strip())
+              else:
+                  if current_date:
+                      buffer.append(line)
+
+          if current_date and buffer:
+              date_messages[current_date] = '\n'.join(buffer).strip()
+
+          # 4) Auswahl der Nachricht
+          if today_str in date_messages:
+              message = date_messages[today_str]
+          elif randoms:
+              message = random.choice(randoms)
+          else:
+              message = "🌀 Heute gibt’s nichts Neues."
+
+          # 5) HTML updaten
+          message = message.replace('\n', '<br>')
+          import re as _re
+          with open('index.html', 'r', encoding='utf-8') as f:
+              html = f.read()
+          new_html = _re.sub(
+              r'<!-- MESSAGE_PLACEHOLDER -->.*?<!-- /MESSAGE_PLACEHOLDER -->',
+              f'<!-- MESSAGE_PLACEHOLDER -->\n{message}\n<!-- /MESSAGE_PLACEHOLDER -->',
+              html, flags=_re.S
+          )
+          with open('index.html', 'w', encoding='utf-8') as f:
+              f.write(new_html)
+          EOF
 
       - name: Änderungen committen & pushen
         run: |
