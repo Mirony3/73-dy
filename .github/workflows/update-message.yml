@@ -66,5 +66,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
-          git push
+
+          # Wenn index.html geändert wurde, committen und pushen
+          if ! git diff --cached --quiet; then
+            git commit -m "Automatisch: Nachricht vom $(date +'%Y-%m-%d')"
+            git push
+          else
+            echo "Keine Änderungen an index.html, kein Commit nötig."
+          fi
+
