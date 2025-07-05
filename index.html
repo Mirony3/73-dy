@@ -1,80 +1,28 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tägliche Nachricht</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="card">
-      <div class="date" id="date"></div>
-      <div class="message" id="message">Lade Nachricht...</div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tägliche Nachricht</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <div class="date" id="date"></div>
+    <div class="message" id="message">
+      <!-- MESSAGE_PLACEHOLDER -->
+      <!-- Hier hat der Action-Workflow die Nachricht eingefügt -->
+      <!-- /MESSAGE_PLACEHOLDER -->
     </div>
+  </div>
 
-    <script>
-      const docUrl = "https://docs.google.com/document/d/1yeyTZNerEmf2N8mN5pGfU66mfSFUkCbQnFK2k9E7beA/export?format=txt";
-
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      const todayStr = `${day}.${month}.${year}`;
-
-      document.getElementById("date").textContent = todayStr;
-
-      function seededRandom(seed) {
-        let x = Math.sin(seed) * 10000;
-        return x - Math.floor(x);
-      }
-
-      fetch(docUrl)
-        .then(response => response.text())
-        .then(text => {
-          const lines = text.split("\n");
-          const randoms = [];
-          let message = null;
-          let currentDate = null;
-          let buffer = [];
-
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (line.match(/^\d{2}\.\d{2}\.\d{4}:/)) {
-              if (currentDate && buffer.length > 0 && currentDate === todayStr) {
-                message = buffer.join("\n").trim();
-              }
-              currentDate = line.split(":")[0];
-              buffer = [line.split(":").slice(1).join(":").trim()];
-            } else if (line.startsWith("RANDOM:")) {
-              randoms.push(line.replace("RANDOM:", "").trim());
-            } else if (line !== "") {
-              buffer.push(line);
-            }
-          }
-
-          if (!message && currentDate === todayStr && buffer.length > 0) {
-            message = buffer.join("\n").trim();
-          }
-
-          if (!message && randoms.length > 0) {
-            const seed = new Date(year, now.getMonth(), now.getDate()).getTime() / 86400000;
-            const index = Math.floor(seededRandom(seed) * randoms.length);
-            message = randoms[index];
-          }
-
-          if (!message) {
-            message = "🌀 Heute gibt’s nichts Neues.";
-          }
-
-          if (message.startsWith("http")) {
-            window.location.href = message;
-          } else {
-            document.getElementById("message").textContent = message;
-          }
-        })
-        .catch(() => {
-          document.getElementById("message").textContent = "Nachricht konnte nicht geladen werden.";
-        });
-    </script>
-  </body>
+  <script>
+    // Nur Datum setzen – kein Fetch mehr!
+    const now = new Date(),
+          d = String(now.getDate()).padStart(2,'0'),
+          m = String(now.getMonth()+1).padStart(2,'0'),
+          y = now.getFullYear();
+    document.getElementById("date").textContent = `${d}.${m}.${y}`;
+  </script>
+</body>
 </html>
