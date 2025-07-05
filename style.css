@@ -1,33 +1,81 @@
-/* style.css */
+/* Box-Sizing & Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+/* Body (Mobile-First) */
 body {
   background: #f7f7f7;
   font-family: "Segoe UI", sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  padding: 20px;
-  margin: 0;
+  min-height: 100vh;
+  padding: 1rem;
 }
 
+/* Karte */
 .card {
-  background: white;
+  background: #fff;
   border-radius: 16px;
-  padding: 24px;
-  max-width: 500px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 360px;        /* Standard für Mobil */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   text-align: left;
+  transition: padding 0.3s, box-shadow 0.3s;
 }
 
 .date {
-  font-size: 0.9em;
+  font-size: 0.85rem;
   color: #888;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 
 .message {
   white-space: pre-wrap;
-  font-size: 1.1em;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Tablet (≥600px) */
+@media (min-width: 600px) {
+  .card {
+    max-width: 500px;
+    padding: 2rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+  .message {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+}
+
+/* Desktop (≥1024px) */
+@media (min-width: 1024px) {
+  .card {
+    max-width: 600px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  .date {
+    font-size: 0.9rem;
+  }
+  .message {
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+}
+
+/* Landscape-Modus Mobil */
+@media (max-width: 599px) and (orientation: landscape) {
+  .card {
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .message {
+    font-size: 0.95rem;
+  }
 }
