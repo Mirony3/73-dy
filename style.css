@@ -1,11 +1,10 @@
-/* Box-Sizing & Reset */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Body (Mobile-First) */
 body {
   background: #f7f7f7;
   font-family: "Segoe UI", sans-serif;
@@ -16,13 +15,12 @@ body {
   padding: 1rem;
 }
 
-/* Karte */
 .card {
   background: #fff;
   border-radius: 16px;
   padding: 1.5rem;
   width: 100%;
-  max-width: 360px;        /* Standard für Mobil */
+  max-width: 360px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   text-align: left;
   transition: padding 0.3s, box-shadow 0.3s;
@@ -40,7 +38,7 @@ body {
   line-height: 1.4;
 }
 
-/* Tablet (≥600px) */
+/* Tablet */
 @media (min-width: 600px) {
   .card {
     max-width: 500px;
@@ -53,7 +51,7 @@ body {
   }
 }
 
-/* Desktop (≥1024px) */
+/* Desktop */
 @media (min-width: 1024px) {
   .card {
     max-width: 600px;
@@ -69,7 +67,7 @@ body {
   }
 }
 
-/* Landscape-Modus Mobil */
+/* Mobil */
 @media (max-width: 599px) and (orientation: landscape) {
   .card {
     max-width: 100%;
