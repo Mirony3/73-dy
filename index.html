@@ -47,8 +47,14 @@ In 4 Tagen geht’s los :D https://www.tiktok.com/@ele.morabito/video/7299636207
         btn.style.borderRadius = "4px";
         btn.style.cursor = "pointer";
         btn.onclick = () => window.open(url, "_blank");
-        msgEl.innerHTML = "";
+      
+        // Nur den Link aus dem Text entfernen
+        const cleanText = text.replace(url, '').trim();
+      
+        msgEl.innerHTML = `<div>${cleanText}</div>`;
         msgEl.append(btn);
+}
+
       }
     });
   </script>
