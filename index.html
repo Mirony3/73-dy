@@ -4,72 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tägliche Nachricht</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
-      color: #f1f1f1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .card {
-      background: #292929;
-      border-radius: 16px;
-      padding: 2em;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      animation: fadeIn 1s ease-out;
-    }
-
-    .date {
-      font-size: 0.9em;
-      color: #bbbbbb;
-      margin-bottom: 1em;
-    }
-
-    .message {
-      font-size: 1.3em;
-      line-height: 1.6;
-      font-family: 'Playfair Display', serif;
-      color: #fff;
-    }
-
-    button {
-      background: #ff5f57;
-      color: white;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #e33e2f;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    img {
-      margin-top: 1em;
-      border-radius: 12px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="card">
     <div class="date" id="date"></div>
     <div class="message" id="message">
-      <!-- MESSAGE_PLACEHOLDER -->
+     <!-- MESSAGE_PLACEHOLDER -->
 „It’s not a bug – it’s an undocumented feature.“ – Grace Hopper
 <!-- /MESSAGE_PLACEHOLDER -->
     </div>
@@ -77,22 +18,27 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
+      // 1) Datum setzen
       const now = new Date(),
             d = String(now.getDate()).padStart(2, '0'),
             m = String(now.getMonth() + 1).padStart(2, '0'),
             y = now.getFullYear();
       document.getElementById("date").textContent = `${d}.${m}.${y}`;
 
+      // 2) Nachrichtstext prüfen
       const msgEl = document.getElementById("message");
       const text = msgEl.textContent.trim();
       const urlMatch = text.match(/https?:\/\/[^\s]+/);
-      if (!urlMatch) return;
+      if (!urlMatch) return;  // keine URL → nichts weiter
 
       const url = urlMatch[0];
 
+      // 3a) Wenn es ein Bild ist (.jpg, .png, .gif), zeige es inline
       if (/\.(jpe?g|png|gif)$/i.test(url)) {
-        msgEl.innerHTML = `<img src="${url}" alt="Bild" style="max-width:100%;height:auto;">`;
-      } else {
+        msgEl.innerHTML = `<img src="${url}" alt="Bild" style="max-width:100%;height:auto;border-radius:8px;">`;
+      }
+      // 3b) Sonst zeige einen Button, um den Link in neuem Tab zu öffnen
+      else {
         const btn = document.createElement("button");
         btn.textContent = "▶ Link öffnen";
         btn.style.marginTop = "1em";
@@ -100,9 +46,9 @@
         btn.style.border = "none";
         btn.style.borderRadius = "4px";
         btn.style.cursor = "pointer";
+        btn.onclick = () => window.open(url, "_blank");
         msgEl.innerHTML = `<div>${text}</div>`;
         msgEl.append(btn);
-        btn.onclick = () => window.open(url, "_blank");
       }
     });
   </script>
