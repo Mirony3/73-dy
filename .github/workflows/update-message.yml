@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '3 0 * * *'    # 03:00 UTC täglich (05:00 MESZ)
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'index.html'       # Bot‑Updates an index.html lösen keinen neuen Lauf aus
 
 permissions:
   contents: write
@@ -98,7 +103,7 @@ jobs:
             elif randoms:
                 message = random.choice(randoms)
             else:
-                message = "🌀 Heute gibt’s nichts Neues."
+                message = "Heute gibt’s nichts Neues."
             
             # 5) HTML updaten
             message_html = message.replace('\n', '<br>')
