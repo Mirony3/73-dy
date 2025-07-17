@@ -76,10 +76,10 @@ jobs:
                   buffer = [m.group(2).strip()]
               elif line.startswith('RANDOM:'):
                   if buffer and current_date == 'RANDOM':
-                  randoms.append('\n'.join(buffer).strip())
+                      randoms.append('\n'.join(buffer).strip())
                   current_date = 'RANDOM'
                   buffer = [line.split('RANDOM:', 1)[1].strip()]
-                  elif current_date == 'RANDOM':
+              elif current_date == 'RANDOM':
                   buffer.append(line)
               else:
                   if current_date:
@@ -87,9 +87,9 @@ jobs:
 
           if current_date:
               if current_date == 'RANDOM':
-              randoms.append('\n'.join(buffer).strip())
-          else:
-              date_messages[current_date] = '\n'.join(buffer).strip()
+                  randoms.append('\n'.join(buffer).strip())
+              else:
+                  date_messages[current_date] = '\n'.join(buffer).strip()
 
           # 4) Auswahl der Nachricht
           if today_str in date_messages:
